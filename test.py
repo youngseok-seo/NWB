@@ -27,6 +27,9 @@ else:
     print('no')
 
 
+print(x)
+
+
 # # Enter desired rootFolder as command line argument
 # rootFolder = sys.argv[1]
 # print('Starting at: '+ rootFolder)
