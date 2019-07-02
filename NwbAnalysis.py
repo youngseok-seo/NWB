@@ -1,9 +1,14 @@
+# Allen's open-source NWB file used on their analysis tools.
+# Error in data
+
+import sys
+sys.path.append('../')
 from AllenSDK.allensdk.core.nwb_data_set import NwbDataSet
 from allensdk.ephys.ephys_extractor import EphysSweepFeatureExtractor
 import numpy as np
 
 
-file_name = 'H19.29.141.11.21.01.nwb'
+file_name = r"C:\NWB\Files\643572191_ephys.nwb"
 data_set = NwbDataSet(file_name)
 
 sweep_numbers = data_set.get_sweep_numbers()
@@ -25,17 +30,15 @@ sampling_rate = sweep_data['sampling_rate']
 # start/stop indices that exclude the experimental test pulse (if applicable)
 index_range = sweep_data['index_range']
 
-
 sweep_number = 35
 sweep_data = data_set.get_sweep(sweep_number)
 
 index_range = sweep_data["index_range"]
-i = sweep_data["stimulus"][0:index_range[1]+1] # in A
-v = sweep_data["response"][0:index_range[1]+1] # in V
-i *= 1e12 # to pA
-v *= 1e3 # to mV
+i = sweep_data["stimulus"][0:index_range[1]+1]  # in A
+v = sweep_data["response"][0:index_range[1]+1]  # in V
+i *= 1e12  # to pA
+v *= 1e3  # to mV
 
-print(v)
 
 sampling_rate = sweep_data["sampling_rate"] # in Hz
 t = np.arange(0, len(v)) * (1.0 / sampling_rate)

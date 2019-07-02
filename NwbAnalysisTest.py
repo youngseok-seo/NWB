@@ -1,4 +1,4 @@
-#Retrieving sweep data from Prajay's NWB files
+# Creating a custom script to access raw data in Prajay's NWB file.
 
 import h5py
 import numpy as np

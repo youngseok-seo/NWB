@@ -2,13 +2,17 @@ import pyabf
 import numpy as np
 import matplotlib.pyplot as plt
 
-abf = pyabf.ABF("/Users/youngseo/Documents/Research/nwb/18426011.abf")
+path = r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 17, 2018\Cell 3\Gain 40\18417031.abf"
+
+# abf = pyabf.ABF("/Users/youngseo/Documents/Research/nwb/18426011.abf")
 # "../White_noise/Human_tissue/Epilepsy cases/Apr 17, 2018/Cell 2/Gain 40/18417017.abf"
 
-# print(abf)
-print('this is header text' + abf.headerText)
+abf = pyabf.ABF(path)
 
-abf.setSweep(0)
+print(abf)
+print('this is header: ' + abf.headerText)
+
+abf.setSweep(12)
 
 print("sweep data (ADC):", abf.sweepY)
 print("sweep command (DAC):", abf.sweepC)
@@ -37,3 +41,4 @@ print("sweep times (seconds):", abf.sweepX)
 # print(byteString)
 
 # print(abf.abfVersion["major"])
+
