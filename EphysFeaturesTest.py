@@ -18,11 +18,12 @@ from neo import io as nio
 
 # neo (as used by Prajay prior to pyabf)
 
-
-fpath = "/Users/youngseo/Documents/Research/nwb/18426011.abf"
+fpath = r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 17, 2018\Cell 3\Gain 40\18417026.abf"
+f = "18417026"
+# fpath = "/Users/youngseo/Documents/Research/nwb/18426011.abf"
 # with open(fpath, encoding='0xFF'):
 #     fpath = fpath
-f = "18426011"
+# f = "18426011"
 
 # Load up abf file - legacy nio importer (less functionality than pyABF and prone to breaking)
 h = {}
@@ -53,23 +54,23 @@ print(I[f])
 
 # save data block for each cell
 d[f] = bl
-
-stimulus = I[f]
-response = V[f]
 #
-stimulus *= 1e12
-response *= 1e3
+for i in range(len(V[f])):
+    stimulus = I[f][i] * 1e12
+    response = V[f][i] * 1e3
 
-sampling_rate = 10e4
+    sampling_rate = 10e4
 
-t = np.arange(0, len(response)) * (1.0 / sampling_rate)
+    t = np.arange(0, len(response)) * (1.0 / sampling_rate)
 
-sweep_ext = EphysSweepFeatureExtractor(t=t, v=response, i=stimulus)
-sweep_ext.process_spikes()
+    sweep_ext = EphysSweepFeatureExtractor(t=t, v=response, i=stimulus)
+    try:
+        sweep_ext.process_spikes()
+    except:
+        print("Failure: %s th sweep" % i)
 
-
-print("Avg spike threshold: %.01f mV" % sweep_ext.spike_feature("threshold_v").mean())
-print("Avg spike width: %.02f ms" % (1e3 * np.nanmean(sweep_ext.spike_feature("width"))))
+    print("Avg spike threshold: %.01f mV" % sweep_ext.spike_feature("threshold_v").mean())
+    print("Avg spike width: %.02f ms" % (1e3 * np.nanmean(sweep_ext.spike_feature("width"))))
 
 
 
