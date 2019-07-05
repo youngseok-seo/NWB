@@ -20,9 +20,13 @@ class ABF1Converter:
 
     def _getHeader(self):
 
-        self.header = self.abf.headerText
+        """
+        Refer to "Unofficial Guide to the ABF File Format" by Scott Harden for bytestring values
+        """
 
-        return self.header
+        self.headerText = self.abf.headerText
+
+        return self.headerText
 
     def _getComments(self):
 
@@ -36,7 +40,11 @@ class ABF1Converter:
 
         self.start_time = self.abf.abfDateTime
         self.inputFileName = os.path.basename(self.inputFilePath)
-        self.inputFileNo = os.path.splitext(self.inputFileName)
+        self.inputFileNo = os.path.splitext(self.inputFileName)[0]
+
+        notes = ''
+        for comment in self.comments:
+            notes += comment
 
         self.NWBFile = NWBFile(
             session_description= "include Cell number and patient condition, from json?",
@@ -46,7 +54,7 @@ class ABF1Converter:
             experimenter='HM',
             lab='Valiante Laboratory',
             institution='University of Toronto',
-            notes=self.comments
+            notes=notes
         )
         return self.NWBFile
 
@@ -56,7 +64,7 @@ class ABF1Converter:
 
     def _createElectrode(self):
 
-        self.electrode = self.NWBFile.create_ic_electrode(name='elec0', device=self.device)
+        self.electrode = self.NWBFile.create_ic_electrode(name='elec0', device=self.device, description='PLACEHOLDER')
 
     def _unitConversion(self, unit):
 
@@ -71,12 +79,14 @@ class ABF1Converter:
         elif unit == 'pA':
             return 1e-12, 'A'
         else:
-            raise ValueError(f"{unit} is not a valid unit.")
+            # raise ValueError(f"{unit} is not a valid unit.")
+            return 1.0, 'V' # hard coded because some units were '?'
 
-    def _getClampMode(self, channel):
+    def _getClampMode(self):
 
-        return self.abf._adcSection.nTelegraphEnable[channel] # Allen runs this fn inside the for loop which loops through within each sweep. how do we get our clamp mode data?
-        # would run inside stim/response
+        self.clampMode = 1
+
+        return 1  # hard coded for Iclamp
 
     def _addStimulus(self):
 
@@ -84,23 +94,23 @@ class ABF1Converter:
 
         for i in range(self.abf.sweepCount):
 
-            #determine whether we need to go through different channels - header only has 1
+            # determine whether we need to go through different channels - header only has 1
 
-            if clampMode == 0:
-                stimulusClass = VoltageClampStimulusSeries # figure out how to get access to clamp mode in abfheader and ues that as input, not arg
-            elif clampMode == 1:
+            if self.clampMode == 0:
+                stimulusClass = VoltageClampStimulusSeries
+            elif self.clampMode == 1:
                 stimulusClass = CurrentClampStimulusSeries
 
             self.abf.setSweep(i)
             seriesName = "Index_{number: 0{math.ceil(math.log(total, 10))}d}" + str(i)
             data = self.abf.sweepC
-            unit, conversion = self._unitConversion(self.abf.sweepUnitsC)
+            conversion, unit = self._unitConversion(self.abf.sweepUnitsC)
             electrode = self.electrode
-            gain = None # get from json file? tag comments too unreliable
+            gain = 1.0  # hard coded for White Noise data
             resolution = np.nan
-            starting_time = self.start_time
-            rate = self.abf.dataRate
-            description = None # make a json file? is this necessary?
+            starting_time = 0.0
+            rate = float(self.abf.dataRate)
+            description = 'N/A'
 
             stimulus = stimulusClass(name=seriesName,
                                      data=data,
@@ -119,38 +129,45 @@ class ABF1Converter:
 
         return True
 
-    def _addAcquisition(self, clampMode):
+    def _addAcquisition(self):
 
         for i in range(self.abf.sweepCount):
 
-            if clampMode == 0:
-                acquisitionClass = VoltageClampSeries  # figure out how to get access to clamp mode in abfheader and ues that as input, not arg
-            elif clampMode == 1:
+            # Voltage input produces current output; current input produces voltage output
+            if self.clampMode == 0:
                 acquisitionClass = CurrentClampSeries
+            elif self.clampMode == 1:
+                acquisitionClass = VoltageClampSeries
 
             self.abf.setSweep(i)
             seriesName = "Index_{number: 0{math.ceil(math.log(total, 10))}d}" + str(i)
             data = self.abf.sweepY
-            unit, conversion = self._unitConversion(self.abf.sweepUnitsY)
+            conversion, unit = self._unitConversion(self.abf.sweepUnitsY)
             electrode = self.electrode
-            gain = None  # get from json file? tag comments too unreliable
+            gain = 1.0  # hard coded for White Noise data
             resolution = np.nan
-            starting_time = self.start_time
-            rate = self.abf.dataRate
-            description = None  # make a json file? is this necessary?
-
+            starting_time = 0.0
+            rate = float(self.abf.dataRate)
+            description = 'N/A'
             acquisition = acquisitionClass(name=seriesName,
-                                     data=data,
-                                     sweep_number=i,
-                                     unit=unit,
-                                     electrode=electrode,
-                                     gain=gain,
-                                     resolution=resolution,
-                                     conversion=conversion,
-                                     starting_time=starting_time,
-                                     rate=rate,
-                                     description=description
-                                     )
+                                           data=data,
+                                           sweep_number=i,
+                                           unit=unit,
+                                           electrode=electrode,
+                                           gain=gain,
+                                           resolution=resolution,
+                                           conversion=conversion,
+                                           starting_time=starting_time,
+                                           rate=rate,
+                                           description=description,
+                                           capacitance_fast=np.nan,
+                                           capacitance_slow=np.nan,
+                                           resistance_comp_bandwidth=np.nan,
+                                           resistance_comp_correction=np.nan,
+                                           resistance_comp_prediction=np.nan,
+                                           whole_cell_capacitance_comp=np.nan,
+                                           whole_cell_series_resistance_comp=np.nan
+                                           )
 
             self.NWBFile.add_acquisition(acquisition)
 
@@ -163,6 +180,7 @@ class ABF1Converter:
         self._createNWBFile()
         self._createDevice()
         self._createElectrode()
+        self._getClampMode()
         self._addStimulus()
         self._addAcquisition()
 
@@ -172,7 +190,7 @@ class ABF1Converter:
         return True
 
 
-
+ABF1Converter(r"C:\NWB\Files\18426011.abf", r"C:\NWB\Files").convert()
 
 
 
