@@ -14,6 +14,8 @@ import numpy as np
 # Sampling rate is fixed for White Noise experiments, but need to become variable.
 # Raw data is used with the Allen Institute's analysis functions
 
+# Data already in units of pA and mV - no conversion needed
+
 abf = pyabf.ABF(r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 17, 2018\Cell 3\Gain 40\18417026.abf")
 
 for i in range(abf.sweepCount):

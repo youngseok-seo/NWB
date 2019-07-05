@@ -12,11 +12,11 @@ abf = pyabf.ABF(path)
 print(abf)
 print('this is header: ' + abf.headerText)
 
-abf.setSweep(12)
-
-print("sweep data (ADC):", abf.sweepY)
-print("sweep command (DAC):", abf.sweepC)
-print("sweep times (seconds):", abf.sweepX)
+# abf.setSweep(12)
+#
+# print("sweep data (ADC):", abf.sweepY)
+# print("sweep command (DAC):", abf.sweepC)
+# print("sweep times (seconds):", abf.sweepX)
 
 
 # plot different sweeps
