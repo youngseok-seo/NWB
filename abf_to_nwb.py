@@ -1,204 +1,79 @@
-import pyabf
-import numpy as np
 import os
-from datetime import datetime
-from pynwb import NWBHDF5IO, NWBFile
-from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries, CurrentClampSeries, VoltageClampSeries
+import sys
+import glob
+import pyabf
+from ABF1Converter import ABF1Converter
 
-
-class ABF1Converter:
+def abf_to_nwb(inputFileorFolder, outFolder):
 
     """
-    ABF1Converter converts Neuron2BrainLab's ABF1 file to NeurodataWithoutBorders v2 file
+    Takes the path to the ABF v1 file(s) as the first command line argument and writes the corresponding NWB file(s)
+    to the folder specified by the second command line argument
+
     """
 
-    def __init__(self, inputFilePath, outputFilePath):
+    if not os.path.exists(inputFileorFolder):
+        raise ValueError(f"The file or folder {inputFileorFolder} does not exist.")
 
-        self.inputFilePath = inputFilePath
-        self.abf = pyabf.ABF(self.inputFilePath)
-        self.outputPath = outputFilePath
+    if not os.path.exists(outFolder):
+        raise ValueError(f"The file or folder {outFolder} does not exist.")
 
-    def _getHeader(self):
+    # The input path is a file
+    if os.path.isfile(inputFileorFolder):
 
-        """
-        Refer to "Unofficial Guide to the ABF File Format" by Scott Harden for bytestring values
-        """
+        fileName = os.path.basename(inputFileorFolder)
+        root, ext = os.path.splitext(fileName)
 
-        self.headerText = self.abf.headerText
+        print(f"Converting {fileName}...")
 
-        return self.headerText
+        abf = pyabf.ABF(inputFileorFolder)
+        if abf.abfVersion["major"] != 1:
+            raise ValueError(f"The ABF version for the file {inputFileorFolder} is not supported.")
 
-    def _getComments(self):
+        if ext != ".abf":
+            raise ValueError(f"The extension {ext} is not supported.")
 
-        self.comments = self.abf.tagComments
+        outFile = os.path.join(outFolder, root + ".nwb")
 
-        return self.comments
-
-    def _createNWBFile(self):
-
-        # Create a shell NWB2 file
-
-        self.start_time = self.abf.abfDateTime
-        self.inputFileName = os.path.basename(self.inputFilePath)
-        self.inputFileNo = os.path.splitext(self.inputFileName)[0]
-
-        notes = ''
-        for comment in self.comments:
-            notes += comment
-
-        self.NWBFile = NWBFile(
-            session_description= "include Cell number and patient condition, from json?",
-            session_start_time=self.start_time,
-            identifier=self.inputFileNo,
-            file_create_date= datetime.today(),
-            experimenter='HM',
-            lab='Valiante Laboratory',
-            institution='University of Toronto',
-            notes=notes
-        )
-        return self.NWBFile
-
-    def _createDevice(self):
-
-        self.device = self.NWBFile.create_device(name='Clampfit')
-
-    def _createElectrode(self):
-
-        self.electrode = self.NWBFile.create_ic_electrode(name='elec0', device=self.device, description='PLACEHOLDER')
-
-    def _unitConversion(self, unit):
-
-        # Returns a 2-list of base unit and conversion factor
-
-        if unit == 'V':
-            return 1.0, 'V'
-        elif unit == 'mV':
-            return 1e-3, 'V'
-        elif unit == 'A':
-            return 1.0, 'A'
-        elif unit == 'pA':
-            return 1e-12, 'A'
-        else:
-            # raise ValueError(f"{unit} is not a valid unit.")
-            return 1.0, 'V' # hard coded because some units were '?'
-
-    def _getClampMode(self):
-
-        self.clampMode = 1
-
-        return 1  # hard coded for Iclamp
-
-    def _addStimulus(self):
-
-        # Determine the correct stimulus class for the given clamp mode (V = 0; I = 1)
-
-        for i in range(self.abf.sweepCount):
-
-            # determine whether we need to go through different channels - header only has 1
-
-            if self.clampMode == 0:
-                stimulusClass = VoltageClampStimulusSeries
-            elif self.clampMode == 1:
-                stimulusClass = CurrentClampStimulusSeries
-
-            self.abf.setSweep(i)
-            seriesName = "Index_{number: 0{math.ceil(math.log(total, 10))}d}" + str(i)
-            data = self.abf.sweepC
-            conversion, unit = self._unitConversion(self.abf.sweepUnitsC)
-            electrode = self.electrode
-            gain = 1.0  # hard coded for White Noise data
-            resolution = np.nan
-            starting_time = 0.0
-            rate = float(self.abf.dataRate)
-            description = 'N/A'
-
-            stimulus = stimulusClass(name=seriesName,
-                                     data=data,
-                                     sweep_number=i,
-                                     unit=unit,
-                                     electrode=electrode,
-                                     gain=gain,
-                                     resolution=resolution,
-                                     conversion=conversion,
-                                     starting_time=starting_time,
-                                     rate=rate,
-                                     description=description
-            )
-
-            self.NWBFile.add_stimulus(stimulus)
-
-        return True
-
-    def _addAcquisition(self):
-
-        for i in range(self.abf.sweepCount):
-
-            # Voltage input produces current output; current input produces voltage output
-            if self.clampMode == 0:
-                acquisitionClass = CurrentClampSeries
-            elif self.clampMode == 1:
-                acquisitionClass = VoltageClampSeries
-
-            self.abf.setSweep(i)
-            seriesName = "Index_{number: 0{math.ceil(math.log(total, 10))}d}" + str(i)
-            data = self.abf.sweepY
-            conversion, unit = self._unitConversion(self.abf.sweepUnitsY)
-            electrode = self.electrode
-            gain = 1.0  # hard coded for White Noise data
-            resolution = np.nan
-            starting_time = 0.0
-            rate = float(self.abf.dataRate)
-            description = 'N/A'
-            acquisition = acquisitionClass(name=seriesName,
-                                           data=data,
-                                           sweep_number=i,
-                                           unit=unit,
-                                           electrode=electrode,
-                                           gain=gain,
-                                           resolution=resolution,
-                                           conversion=conversion,
-                                           starting_time=starting_time,
-                                           rate=rate,
-                                           description=description,
-                                           capacitance_fast=np.nan,
-                                           capacitance_slow=np.nan,
-                                           resistance_comp_bandwidth=np.nan,
-                                           resistance_comp_correction=np.nan,
-                                           resistance_comp_prediction=np.nan,
-                                           whole_cell_capacitance_comp=np.nan,
-                                           whole_cell_series_resistance_comp=np.nan
-                                           )
-
-            self.NWBFile.add_acquisition(acquisition)
-
-        return True
-
-    def convert(self):
-
-        self._getHeader()
-        self._getComments()
-        self._createNWBFile()
-        self._createDevice()
-        self._createElectrode()
-        self._getClampMode()
-        self._addStimulus()
-        self._addAcquisition()
-
-        with NWBHDF5IO(self.outputPath, "w") as io:
-            io.write(NWBFile)
-
-        return True
+        ABF1Converter(inputFileorFolder, outFile).convert()
+        print(f"{filename} was successfully converted to {outFile}.")
 
 
-ABF1Converter(r"C:\NWB\Files\18426011.abf", r"C:\NWB\Files").convert()
+    # The input path is a folder or directory
+    elif os.path.isdir(inputFileorFolder):
 
+        for dirpath, dirnames, filenames in os.walk(inputFileorFolder):
 
+            if len(dirnames) == 0 and len(glob.glob(dirpath + "/*.abf")) != 0:
 
+                files = glob.glob(dirpath + "/*.abf")
 
+                for file in files:
 
+                    fileName = os.path.basename(file)
+                    root, ext = os.path.splitext(fileName)
 
+                    print(f"Converting {fileName}...")
 
+                    abf = pyabf.ABF(file)
+                    if abf.abfVersion["major"] != 1:
+                        raise ValueError(f"The ABF version for the file {file} is not supported.")
 
+                    if ext != ".abf":
+                        raise ValueError(f"The extension {ext} is not supported.")
 
+                    outFile = os.path.join(outFolder, root + ".nwb")
 
+                    ABF1Converter(file, outFile).convert()
+                    print(f"{fileName} was successfully converted to {outFile}.")
 
+    else:
+        print("Conversion failed.")
+
+def main():
+
+    input = sys.argv[1]
+    output = sys.argv[2]
+    abf_to_nwb(input, output)
+
+main()
