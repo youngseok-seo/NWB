@@ -35,9 +35,11 @@ def abf_to_nwb(inputFileorFolder, outFolder):
 
         outFile = os.path.join(outFolder, root + ".nwb")
 
-        ABF1Converter(inputFileorFolder, outFile).convert()
-        print(f"{filename} was successfully converted to {outFile}.")
+        if os.path.exists(outFile):
+            raise ValueError(f"The file {outFile} already exists.")
 
+        ABF1Converter(inputFileorFolder, outFile).convert()
+        print(f"{fileName} was successfully converted to {outFile}.")
 
     # The input path is a folder or directory
     elif os.path.isdir(inputFileorFolder):
@@ -63,6 +65,9 @@ def abf_to_nwb(inputFileorFolder, outFolder):
                         raise ValueError(f"The extension {ext} is not supported.")
 
                     outFile = os.path.join(outFolder, root + ".nwb")
+
+                    if os.path.exists(outFile):
+                        raise ValueError(f"The file {outFile} already exists.")
 
                     ABF1Converter(file, outFile).convert()
                     print(f"{fileName} was successfully converted to {outFile}.")

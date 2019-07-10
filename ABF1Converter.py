@@ -86,7 +86,7 @@ class ABF1Converter:
 
         self.clampMode = 1
 
-        return 1  # hard coded for Iclamp
+        return self.clampMode  # hard coded for Iclamp
 
     def _addStimulus(self):
 
@@ -95,11 +95,6 @@ class ABF1Converter:
         for i in range(self.abf.sweepCount):
 
             # determine whether we need to go through different channels - header only has 1
-
-            if self.clampMode == 0:
-                stimulusClass = VoltageClampStimulusSeries
-            elif self.clampMode == 1:
-                stimulusClass = CurrentClampStimulusSeries
 
             self.abf.setSweep(i)
             seriesName = "Index_" + str(i)
@@ -111,6 +106,11 @@ class ABF1Converter:
             starting_time = 0.0
             rate = float(self.abf.dataRate)
             description = 'N/A'
+
+            if self.clampMode == 0:
+                stimulusClass = VoltageClampStimulusSeries
+            elif self.clampMode == 1:
+                stimulusClass = CurrentClampStimulusSeries
 
             stimulus = stimulusClass(name=seriesName,
                                      data=data,
@@ -149,25 +149,44 @@ class ABF1Converter:
             starting_time = 0.0
             rate = float(self.abf.dataRate)
             description = 'N/A'
-            acquisition = acquisitionClass(name=seriesName,
-                                           data=data,
-                                           sweep_number=i,
-                                           unit=unit,
-                                           electrode=electrode,
-                                           gain=gain,
-                                           resolution=resolution,
-                                           conversion=conversion,
-                                           starting_time=starting_time,
-                                           rate=rate,
-                                           description=description,
-                                           capacitance_fast=np.nan,
-                                           capacitance_slow=np.nan,
-                                           resistance_comp_bandwidth=np.nan,
-                                           resistance_comp_correction=np.nan,
-                                           resistance_comp_prediction=np.nan,
-                                           whole_cell_capacitance_comp=np.nan,
-                                           whole_cell_series_resistance_comp=np.nan
-                                           )
+
+            if self.clampMode == 0:
+                acquisition = CurrentClampSeries(name=seriesName,
+                                                 data=data,
+                                                 sweep_number=i,
+                                                 unit=unit,
+                                                 electrode=electrode,
+                                                 gain=gain,
+                                                 resolution=resolution,
+                                                 conversion=conversion,
+                                                 starting_time=starting_time,
+                                                 rate=rate,
+                                                 description=description,
+                                                 bias_current=np.nan,
+                                                 bridge_balance=np.nan,
+                                                 capacitance_compensation=np.nan,
+                                                 )
+
+            elif self.clampMode == 1:
+                acquisition = VoltageClampSeries(name=seriesName,
+                                                 data=data,
+                                                 sweep_number=i,
+                                                 unit=unit,
+                                                 electrode=electrode,
+                                                 gain=gain,
+                                                 resolution=resolution,
+                                                 conversion=conversion,
+                                                 starting_time=starting_time,
+                                                 rate=rate,
+                                                 description=description,
+                                                 capacitance_fast=np.nan,
+                                                 capacitance_slow=np.nan,
+                                                 resistance_comp_bandwidth=np.nan,
+                                                 resistance_comp_correction=np.nan,
+                                                 resistance_comp_prediction=np.nan,
+                                                 whole_cell_capacitance_comp=np.nan,
+                                                 whole_cell_series_resistance_comp=np.nan
+                                                 )
 
             self.NWBFile.add_acquisition(acquisition)
 
