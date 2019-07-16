@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from os import walk
+import os
 import sys
 import glob
 from datetime import datetime
@@ -13,21 +13,45 @@ import pandas as pd
 # print('root folder: ' + rootFolder)
 #
 # cnt = 0
-# for dirpath, dirnames, filenames in walk(rootFolder):
-#     # if len(dirnames) == 0 and len(glob.glob(dirpath + '/*.abf')) != 0:
-#     cells = [s for s in dirnames if "Cell" in s]
-#     for cell in cells:
+
+rootFolder = r"C:\NWB\Files\NWB Files\18129006.nwb"
+# newroot = os.path.join(rootFolder, "new")
+# print(newroot)
+
+abf = pyabf.ABF(rootFolder)
+print(abf.headerText)
+# for dirpath, dirnames, filenames in os.walk(rootFolder):
+#     cell_paths = [s for s in dirnames if "Cell" in s]
+#     for cell in cell_paths:
 #         print(cell)
+#
+#         for format in ["%B %d, %Y", "%b %d, %Y"]:
+#             try:
+#                 x = datetime.strptime(os.path.split(dirpath)[-1], format)  # dirpath gives up to the date
+#                 # print(str(x.year) + "_" + str(x.month) + "_" + str(x.day))
+#                 print(x.date())
+#             except:
+#                 pass
+        # print(dirnames)  # dirnames is str list of cell names
 
-x = np.arange(0,11)
-nz = np.flatnonzero(x)
-if nz.size:
-    print("yes")
-else:
-    print('no')
+    # print(cell_paths)
 
+num = [1,2,3]
+apb = ["a", "b", "c"]
+
+x =list(zip(num, apb))
 
 print(x)
+
+# base = path.basename(r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 26, 2018\Cell 1\Gain 40\18426013.abf")
+# fileno, ext = path.splitext(base)
+# print(base)
+
+
+# x = [r"C:\NWB\Files\18426011.abf", r"C:\NWB\Files\19516004.abf"]
+# x.sort(key=lambda y: path.basename(y))
+# print(x)
+
 
 
 # # Enter desired rootFolder as command line argument

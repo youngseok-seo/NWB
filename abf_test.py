@@ -1,16 +1,26 @@
 import pyabf
+import os
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime
 
-path = r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 17, 2018\Cell 3\Gain 40\18417031.abf"
+path = r"C:\NWB\Files\18426011.abf"
 
 # abf = pyabf.ABF("/Users/youngseo/Documents/Research/nwb/18426011.abf")
 # "../White_noise/Human_tissue/Epilepsy cases/Apr 17, 2018/Cell 2/Gain 40/18417017.abf"
 
 abf = pyabf.ABF(path)
 
-print(abf)
-print('this is header: ' + abf.headerText)
+print(len(abf.sweepC))
+
+# print(abf)
+# print('this is header: ' + abf.headerText)
+
+# inputFileName = os.path.basename(path)
+# inputFileNo = os.path.splitext(inputFileName)
+#
+# print(inputFileNo[0])
+
 
 # abf.setSweep(12)
 #
