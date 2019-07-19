@@ -247,7 +247,7 @@ class ABF1Converter:
         self._addAcquisition()
 
         with NWBHDF5IO(self.outputPath, "w") as io:
-            io.write(self.NWBFile)
+            io.write(self.NWBFile, cache_spec=True)
 
         print(f"Successfully converted to {self.outputPath}.")
 

@@ -51,6 +51,7 @@ def abf_to_nwb(inputPath, outFolder):
 
     else:
 
+        date = ""
         for dirpath, dirnames, filenames in os.walk(inputPath):
 
             # Create NWB file for each cell (YYYY.MM.DD.C#.nwb)
@@ -61,14 +62,21 @@ def abf_to_nwb(inputPath, outFolder):
 
                 # Create uniform datetime object for file name consistency
                 dateStr = os.path.split(dirpath)[-1]
+                failCount = 0
                 for fmt in ["%B %d, %Y", "%b %d, %Y"]:
                     try:
                         dt = datetime.strptime(dateStr, fmt)
                     except:
+                        failCount += 1
                         pass
 
-                cellNumber = cell[-1]
+                if failCount > 1:
+                    raise ValueError("The file hierarchy is not compatible: date must be present.")
+
                 date = str(dt.date())
+
+
+                cellNumber = cell[5:]
 
                 outFile = os.path.join(outFolder, date + "-" + f"C{cellNumber}" + ".nwb")
 
