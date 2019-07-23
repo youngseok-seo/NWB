@@ -11,7 +11,10 @@ from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries
 class ABF1Converter:
 
     """
-    ABF1Converter converts Neuron2BrainLab's ABF1 files from a single cell to a collective NeurodataWithoutBorders v2 file
+    Converts Neuron2BrainLab's ABF1 files from a single cell (collected without amplifier settings from the
+    multi-clamp commander) to a collective NeurodataWithoutBorders v2 file.
+
+    Modeled after ABFConverter created by the Allen Institute.
     """
 
     def __init__(self, inputPath, outputFilePath):
@@ -22,6 +25,7 @@ class ABF1Converter:
         abfFiles = []
         for dirpath, dirnames, filenames in os.walk(self.inputPath):
 
+            # Find all .abf files in the directory
             if len(dirnames) == 0 and len(glob.glob(dirpath + "/*.abf")) != 0:
                 check += 1
                 abfFiles += glob.glob(dirpath + "/*.abf")
@@ -62,13 +66,19 @@ class ABF1Converter:
 
     def _getComments(self, abf):
 
+        """
+        Accesses the tag comments created in Clampfit
+        """
+
         return abf.tagComments
 
     def _createNWBFile(self):
 
-        # Create a shell NWB2 file
+        """
+        Creates the NWB file for the cell, as defined by PyNWB
+        """
 
-        self.start_time = self.abfFiles[0].abfDateTime  # TODO: must find the correct time (.abfDateTime may be unreliable)
+        self.start_time = self.abfFiles[0].abfDateTime  # not used for ordering sweeps due to inconsistency
         self.inputCellName = os.path.basename(self.inputPath)
 
         self.NWBFile = NWBFile(
@@ -105,9 +115,16 @@ class ABF1Converter:
             return 1e-12, 'A'
         else:
             # raise ValueError(f"{unit} is not a valid unit.")
-            return 1.0, 'V'  # hard coded because some units were '?'
+            return 1.0, 'V'  # hard coded for units stored as '?'
 
     def _getClampMode(self):
+
+        """
+        Returns the clamp mode of the experiment.
+
+        Voltage Clamp Mode = 0
+        Current Clamp Mode = 1
+        """
 
         self.clampMode = 1
 
@@ -115,15 +132,19 @@ class ABF1Converter:
 
     def _addStimulus(self):
 
-        # Determine the correct stimulus class for the given clamp mode (V = 0; I = 1)
+        """
+        Adds a stimulus class as defined by PyNWB to the NWB File.
+
+        Written for experiments conducted from a single channel.
+        For multiple channels, refer to https://github.com/AllenInstitute/ipfx/blob/master/ipfx/x_to_nwb/ABFConverter.py
+        """
 
         sweepGlobal = 0
         for idx, abfFile in enumerate(self.abfFiles):
 
             for i in range(abfFile.sweepCount):
 
-                # determine whether we need to go through different channels - header only has 1
-
+                # Collect data from pyABF
                 abfFile.setSweep(i)
                 seriesName = "Index_" + str(i + sweepGlobal)
                 data = abfFile.sweepC
@@ -133,6 +154,8 @@ class ABF1Converter:
                 resolution = np.nan
                 starting_time = 0.0
                 rate = float(abfFile.dataRate)
+
+                # Create a JSON file for the description field
                 description = json.dumps({"file_name": os.path.basename(self.fileNames[idx]),
                                           "file_version": abfFile.abfVersionString,
                                           "sweep_number": i,
@@ -141,11 +164,13 @@ class ABF1Converter:
                                           "comments": self._getComments(abfFile)},
                                          sort_keys=True, indent=4)
 
+                # Determine the clamp mode
                 if self.clampMode == 0:
                     stimulusClass = VoltageClampStimulusSeries
                 elif self.clampMode == 1:
                     stimulusClass = CurrentClampStimulusSeries
 
+                # Create a stimulus class
                 stimulus = stimulusClass(name=seriesName,
                                          data=data,
                                          sweep_number=i,
@@ -167,11 +192,19 @@ class ABF1Converter:
 
     def _addAcquisition(self):
 
+        """
+        Adds an acquisition class as defined by PyNWB to the NWB File.
+
+        Written for experiments conducted from a single channel.
+        For multiple channels, refer to https://github.com/AllenInstitute/ipfx/blob/master/ipfx/x_to_nwb/ABFConverter.py
+        """
+
         sweepGlobal = 0
         for idx, abfFile in enumerate(self.abfFiles):
 
             for i in range(abfFile.sweepCount):
 
+                # Collect data from pyABF
                 abfFile.setSweep(i)
                 seriesName = "Index_" + str(i + sweepGlobal)
                 data = abfFile.sweepY
@@ -181,6 +214,8 @@ class ABF1Converter:
                 resolution = np.nan
                 starting_time = 0.0
                 rate = float(abfFile.dataRate)
+
+                # Create a JSON file for the description field
                 description = json.dumps({"file_name": os.path.basename(self.fileNames[idx]),
                                           "file_version": abfFile.abfVersionString,
                                           "sweep_number": i,
@@ -189,7 +224,8 @@ class ABF1Converter:
                                           "comments": self._getComments(abfFile)},
                                          sort_keys=True, indent=4)
 
-                # Voltage input produces current output; current input produces voltage output
+                # Create an acquisition class
+                # Note: voltage input produces current output; current input produces voltage output
 
                 if self.clampMode == 0:
                     acquisition = CurrentClampSeries(name=seriesName,
@@ -236,6 +272,11 @@ class ABF1Converter:
         return True
 
     def convert(self):
+
+        """
+        Iterates through the functions in the specified order.
+        :return: True (for success)
+        """
 
         print(f"Converting files in {os.path.basename(self.inputPath)}...")
         # self._getHeader()
