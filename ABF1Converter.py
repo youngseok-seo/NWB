@@ -14,7 +14,7 @@ class ABF1Converter:
     ABF1Converter converts Neuron2BrainLab's ABF1 files from a single cell to a collective NeurodataWithoutBorders v2 file
     """
 
-    def __init__(self, inputPath, outputFilePath):
+    def __init__(self, inputPath, outputFilePath, clampMode=None, gain=None):
 
         self.inputPath = inputPath
 
@@ -50,6 +50,18 @@ class ABF1Converter:
 
         self.outputPath = outputFilePath
 
+        # Take metadata input, and return hard coded values for None
+        if clampMode:
+            self.clampMode = clampMode
+        else:
+            self.clampMode = 1 # Current Clamp Mode
+
+        if gain:
+            self.gain = gain
+        else:
+            self.gain = 1.0
+
+
     # def _getHeader(self):
     #
     #     """
@@ -76,9 +88,7 @@ class ABF1Converter:
             session_start_time=self.start_time,
             identifier=self.inputCellName,
             file_create_date= datetime.today(),
-            experimenter="HM",
-            lab="Valiante Laboratory",
-            institution="University of Toronto",
+            experimenter=None,
             notes=""
         )
         return self.NWBFile
@@ -109,9 +119,7 @@ class ABF1Converter:
 
     def _getClampMode(self):
 
-        self.clampMode = 1
-
-        return self.clampMode  # hard coded for Current Clamp Mode
+        return self.clampMode
 
     def _addStimulus(self):
 
