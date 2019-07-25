@@ -1,4 +1,3 @@
-#!/bin/env python
 # vim: set fileencoding=utf-8
 import matplotlib.pyplot as plt
 import matplotlib.style as mplstyle
@@ -12,6 +11,15 @@ import argparse
 import os
 
 from pynwb import NWBHDF5IO
+
+"""
+Taken from https://github.com/AllenInstitute/ipfx/blob/master/ipfx/bin/nwb_to_pdf.py and modified to accommodate 
+NWB v2 files created for the Neuron2BrainLab. 
+
+Key changes: 
+    - removed ephys features specific to pClamp 10 
+    - modified functions to collect sweep number, not cycle ID
+"""
 
 
 def physical(number, unit):
@@ -108,7 +116,7 @@ class SingleSweep():
     '''
     def __init__(self, id):
         self.id = id
-        # initialize associated sweepdata
+        # initialize associated sweep data
         self.acquisition = {}
         self.stimulus = {}
 
@@ -257,7 +265,7 @@ def plot_patchClampSeries(axis, pcs_data_plot, length):
     props = {"boxstyle": 'round', "facecolor": 'wheat', "alpha": 0.5}
     axis.text(0.05, 0.95, pcs_data_plot.get_annotation(),
               transform=axis.transAxes,
-              fontsize=8,
+              fontsize=6,
               verticalalignment='top',
               bbox=props)
 

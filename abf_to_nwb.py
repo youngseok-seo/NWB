@@ -7,7 +7,9 @@ def abf_to_nwb(inputPath, outFolder):
 
     """
     Takes the path to the ABF v1 file(s) as the first command line argument and writes the corresponding NWB file(s)
-    to the folder specified by the second command line argument
+    to the folder specified by the second command line argument.
+
+    NWB Files organized by cell, and must have directories in the form "../Month Day, Year/Cell #/"
 
     """
 
@@ -17,7 +19,8 @@ def abf_to_nwb(inputPath, outFolder):
     if not os.path.exists(outFolder):
         raise ValueError(f"The file or folder {outFolder} does not exist.")
 
-    # The input path is a single file
+    # Activate for single ABF v1 -> single NWB v2
+    #
     # if os.path.isfile(inputFileorFolder):
     #
     #     fileName = os.path.basename(inputFileorFolder)
@@ -75,9 +78,9 @@ def abf_to_nwb(inputPath, outFolder):
 
                 date = str(dt.date())
 
-
                 cellNumber = cell[5:]
 
+                # Create an NWB v2 file (MM-DD-YY-C#.nwb)
                 outFile = os.path.join(outFolder, date + "-" + f"C{cellNumber}" + ".nwb")
 
                 if os.path.exists(outFile):
