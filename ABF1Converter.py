@@ -21,36 +21,46 @@ class ABF1Converter:
 
         self.inputPath = inputPath
 
-        check = 0
-        abfFiles = []
-        for dirpath, dirnames, filenames in os.walk(self.inputPath):
+        if os.path.isfile(self.inputPath):
 
-            # Find all .abf files in the directory
-            if len(dirnames) == 0 and len(glob.glob(dirpath + "/*.abf")) != 0:
-                check += 1
-                abfFiles += glob.glob(dirpath + "/*.abf")
-
-        if check == 0:
-            raise ValueError(f"{inputPath} contains no ABF Files.")
-
-        # Arrange the ABF files in ascending order
-        abfFiles.sort(key=lambda x: os.path.basename(x))
-
-        # Collect file names for description
-        self.fileNames = []
-        for file in abfFiles:
-            self.fileNames += [os.path.basename(file)]
-
-        self.abfFiles = []
-        for abfFile in abfFiles:
-            # Load each ABF file using pyabf
-            abf = pyabf.ABF(abfFile)
-
-            # Check for ABF version
+            abf = pyabf.ABF(self.inputPath)
             if abf.abfVersion["major"] != 1:
                 raise ValueError(f"The ABF version for the file {abf} is not supported.")
 
-            self.abfFiles += [abf]
+            self.fileNames = [os.path.basename(self.inputPath)]
+            self.abfFiles = [abf]
+
+        elif os.path.isdir(self.inputPath):
+            check = 0
+            abfFiles = []
+            for dirpath, dirnames, filenames in os.walk(self.inputPath):
+
+                # Find all .abf files in the directory
+                if len(dirnames) == 0 and len(glob.glob(dirpath + "/*.abf")) != 0:
+                    check += 1
+                    abfFiles += glob.glob(dirpath + "/*.abf")
+
+            if check == 0:
+                raise ValueError(f"{inputPath} contains no ABF Files.")
+
+            # Arrange the ABF files in ascending order
+            abfFiles.sort(key=lambda x: os.path.basename(x))
+
+            # Collect file names for description
+            self.fileNames = []
+            for file in abfFiles:
+                self.fileNames += [os.path.basename(file)]
+
+            self.abfFiles = []
+            for abfFile in abfFiles:
+                # Load each ABF file using pyabf
+                abf = pyabf.ABF(abfFile)
+
+                # Check for ABF version
+                if abf.abfVersion["major"] != 1:
+                    raise ValueError(f"The ABF version for the file {abf} is not supported.")
+
+                self.abfFiles += [abf]
 
         self.outputPath = outputFilePath
 
@@ -58,7 +68,7 @@ class ABF1Converter:
         if clampMode:
             self.clampMode = clampMode
         else:
-            self.clampMode = 1 # Current Clamp Mode
+            self.clampMode = 1  # Current Clamp Mode
 
         if gain:
             self.gain = gain
@@ -286,7 +296,6 @@ class ABF1Converter:
         :return: True (for success)
         """
 
-        print(f"Converting files in {os.path.basename(self.inputPath)}...")
         # self._getHeader()
         self._createNWBFile()
         self._createDevice()

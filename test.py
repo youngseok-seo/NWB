@@ -14,12 +14,12 @@ import pandas as pd
 #
 # cnt = 0
 
-rootFolder = r"C:\NWB\Files\NWB Files\18129006.nwb"
+# rootFolder = r"C:\NWB\Files\NWB Files\18129006.nwb"
 # newroot = os.path.join(rootFolder, "new")
 # print(newroot)
 
-abf = pyabf.ABF(rootFolder)
-print(abf.headerText)
+# abf = pyabf.ABF(rootFolder)
+# print(abf.headerText)
 # for dirpath, dirnames, filenames in os.walk(rootFolder):
 #     cell_paths = [s for s in dirnames if "Cell" in s]
 #     for cell in cell_paths:
@@ -36,12 +36,26 @@ print(abf.headerText)
 
     # print(cell_paths)
 
-num = [1,2,3]
-apb = ["a", "b", "c"]
 
-x =list(zip(num, apb))
+class one:
+    def __init__(self):
+        self.x = 1
 
-print(x)
+    def get_x(self):
+        return self.x
+
+
+class two(one):
+    def __init__(self):
+        super().__init__()
+        self.y = 2
+
+    def get(self):
+        return super().get_x() * self.y
+
+
+n = two().get()
+print(n)
 
 # base = path.basename(r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 26, 2018\Cell 1\Gain 40\18426013.abf")
 # fileno, ext = path.splitext(base)
