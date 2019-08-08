@@ -4,14 +4,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-path = r"C:\NWB\Files\18426011.abf"
+path = r"/Users/youngseo/Documents/Research/nwb/Files/allen_nwb2/H19_29_150_11_21_01_0001.abf"
 
 # abf = pyabf.ABF("/Users/youngseo/Documents/Research/nwb/18426011.abf")
 # "../White_noise/Human_tissue/Epilepsy cases/Apr 17, 2018/Cell 2/Gain 40/18417017.abf"
 
+root, ext = os.path.splitext(path)
+
 abf = pyabf.ABF(path)
 
-print(len(abf.sweepC))
+print(abf.abfVersion["major"])
+abf.getInfoPage().generateHTML(saveAs=root + ".html")
 
 # print(abf)
 # print('this is header: ' + abf.headerText)
