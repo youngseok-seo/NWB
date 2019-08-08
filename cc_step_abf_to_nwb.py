@@ -58,15 +58,15 @@ def abf_to_nwb(inputPath, outFolder):
             colList = metaSheet[col].tolist()
             dates[f"{col.date()}"] = colList
 
-        for date, file in dates.items():
-            for i in range(len(file)):
-                if file[i] == "19122017.abf":
-                    expDate = date
-
         for file in files:
 
             fileName = os.path.basename(file)
             root, ext = os.path.splitext(fileName)
+
+            for date, files in dates.items():
+                for i in range(len(files)):
+                    if files[i] == fileName:
+                        expDate = date
 
             print(f"Converting {fileName}...")
 

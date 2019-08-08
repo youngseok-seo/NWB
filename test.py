@@ -37,25 +37,23 @@ import pandas as pd
     # print(cell_paths)
 
 
-class one:
-    def __init__(self):
-        self.x = 1
-
-    def get_x(self):
-        return self.x
-
-
-class two(one):
-    def __init__(self):
-        super().__init__()
-        self.y = 2
-
-    def get(self):
-        return super().get_x() * self.y
-
-
-n = two().get()
-print(n)
+excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM.xlsx"
+# metaSheet = pd.read_excel(excel, sheet_name='L23-cells', header=3, usecols='B:G', nrows=8)
+# print(metaSheet)
+# dates = {}
+# for col in metaSheet.columns:
+#     colList = metaSheet[col].tolist()
+#     dates[f"{col}"] = colList
+#
+# print(dates)
+#
+# for date, file in dates.items():
+#     for i in range(len(file)):
+#         if file[i] == "19122017.abf":
+#             print(date)
+#
+demographics = pd.read_excel(excel, sheet_name='Demographic information-paper', nrows=53)
+print(demographics)
 
 # base = path.basename(r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 26, 2018\Cell 1\Gain 40\18426013.abf")
 # fileno, ext = path.splitext(base)
