@@ -3,6 +3,7 @@
 import os
 import sys
 import glob
+import csv
 from datetime import datetime
 import pyabf
 import numpy as np
@@ -38,8 +39,8 @@ import pandas as pd
 
 
 excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM.xlsx"
-# metaSheet = pd.read_excel(excel, sheet_name='L23-cells', header=3, usecols='B:G', nrows=8)
-# print(metaSheet)
+metaSheet = pd.read_excel(excel, sheet_name='Layer 5- cells', header=2, nrows=12)
+print(metaSheet['12/11/2013'])
 # dates = {}
 # for col in metaSheet.columns:
 #     colList = metaSheet[col].tolist()
@@ -52,8 +53,12 @@ excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM
 #         if file[i] == "19122017.abf":
 #             print(date)
 #
-demographics = pd.read_excel(excel, sheet_name='Demographic information-paper', nrows=53)
-print(demographics)
+# with open(r"C:\NWB\Files\Data\Step\metadata.csv", 'a') as csvFile:
+#     writer = csv.writer(csvFile)
+#     writer.writerow(['1', '2', '3', '4', '5'])
+#
+# csvFile.close()
+
 
 # base = path.basename(r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 26, 2018\Cell 1\Gain 40\18426013.abf")
 # fileno, ext = path.splitext(base)

@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import pandas as pd
+import csv
 from datetime import datetime
 from ABF1Converter import ABF1Converter
 
@@ -49,10 +50,10 @@ def abf_to_nwb(inputPath, outFolder):
 
         files = glob.glob(inputPath + "/*.abf")
 
-        # Parse excel spreadsheet to gather date information
+        # Parse excel spreadsheet to gather date information and store into a dictionary
 
         excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM.xlsx"
-        metaSheet = pd.read_excel(excel, sheet_name='L23-cells', header=3, usecols='B:G', nrows=8)
+        metaSheet = pd.read_excel(excel, sheet_name='Layer 5- cells', header=2, nrows=12)
         dates = {}
         for col in metaSheet.columns:
             colList = metaSheet[col].tolist()
@@ -63,6 +64,7 @@ def abf_to_nwb(inputPath, outFolder):
             fileName = os.path.basename(file)
             root, ext = os.path.splitext(fileName)
 
+            # Match date information
             for date, files in dates.items():
                 for i in range(len(files)):
                     if files[i] == fileName:
@@ -76,6 +78,14 @@ def abf_to_nwb(inputPath, outFolder):
                 raise ValueError(f"The file {outFile} already exists.")
 
             ABF1Converter(inputPath, outFile).convert()
+
+            # Append to metadata CSV file
+
+            with open(r"C:\NWB\Files\Data\Step\metadata.csv", 'a') as csvFile:
+                writer = csv.writer(csvFile)
+                writer.writerow([f'{fileName}', f'{expDate}', '5', 'Homeira', f'{outFile}'])
+
+            csvFile.close()
 
         # date = ""
         # for dirpath, dirnames, filenames in os.walk(inputPath):
