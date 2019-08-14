@@ -81,7 +81,7 @@ def abf_to_nwb(inputPath, outFolder):
 
             # Append to metadata CSV file
 
-            with open(r"C:\NWB\Files\Data\Step\metadata.csv", 'a') as csvFile:
+            with open(r"C:\NWB\Files\NWB Files\Step\metadata.csv", 'a') as csvFile:
                 writer = csv.writer(csvFile)
                 writer.writerow([f'{fileName}', f'{expDate}', '5', 'Homeira', f'{outFile}'])
 
