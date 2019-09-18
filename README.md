@@ -3,10 +3,25 @@
 `abf_to_nwb.py` converts ABF v1 files to NWB v2 files.
 
 #### Example:
+
+Convert a file to NWB by downloading an ABF file, and executing the command as specified below. 
+An example input ABF v1 file and the output NWB v2 file can be found in `data/abf1`. 
+
 ```
 abf_to_nwb.py "path/to/inputFolder" "path/to/outputFolder"
 ```
 
+### Process
+
+The conversion process as outlined in this repository is divided into a two-step process:
+ 1.  A customized function parses a specified directory hierarchy to obtain metadata and create NWB file names. The function creates a list of ABF files which are then organized at the cellular level.
+ 2.  The file(s) are passed onto a general converter class which executes the conversion.
+ 
+Although `ABF1Converter.py` is generalized for all inputs organized at the cell level, the file handling functions require a customized script for each lab per experiment type. The input for the converter class can be one or multiple ABF files per cell; `abf_to_nwb.py` is an example of a function which collects a list of ABF files as input, while `cc_step_abf_to_nwb.py` exemplify a use case where only one ABF file exists per cell. 
+
+It is important to note that these file handling functions should only be referred to as examples--they contain manually assigned variables which are not compatible with other experiment types or file organization structures. 
+
+_Note: The functions were written specifically for files collected using current clamp mode at Toronto Western Hospital. __abf_to_nwb.py__ was written for white noise stimulus experiments, and __cc_step_abf_to_nwb.py__ for step stimulus experiments._
 
 ### Specifications
 
