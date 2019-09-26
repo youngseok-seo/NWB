@@ -1,15 +1,19 @@
 ## Converting ABF1 files to NWB2
 
-`abf_to_nwb.py` converts ABF v1 files to NWB v2 files.
+`abf_to_nwb.py` converts white noise stimulus ABF v1 files to NWB v2 files.
+
+`cc_step_abf_to_nwb.py` converts step stimulus ABF v1 files to NWB v2 files.
 
 #### Example:
 
-Convert a file to NWB by downloading an ABF file, and executing the command as specified below. 
-An example input ABF v1 file and the output NWB v2 file can be found in `data/abf1`. 
+Convert a step stimulus file to NWB by downloading the sample ABF file, and executing the command as specified below. 
+The ABF v1 file and the output NWB v2 file can be found in `data/abf1`. 
 
 ```
-abf_to_nwb.py "path/to/inputFolder" "path/to/outputFolder"
+cc_step_abf_to_nwb.py "path/to/inputFolder" "path/to/outputFolder"
 ```
+
+__Note:__ `"path/to/outputFolder"` must not contain the output file.
 
 ### Process
 
