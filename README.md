@@ -10,7 +10,7 @@ Convert a step stimulus file to NWB by downloading the sample ABF file, and exec
 The ABF v1 file and the output NWB v2 file can be found in `data/abf1`. 
 
 ```
-cc_step_abf_to_nwb.py "path/to/inputFolder" "path/to/outputFolder"
+python3 cc_step_abf_to_nwb.py "path/to/inputFolder" "path/to/outputFolder"
 ```
 
 __Note:__ `"path/to/outputFolder"` must not contain the output file.
