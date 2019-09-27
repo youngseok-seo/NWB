@@ -37,10 +37,9 @@ import pandas as pd
 
     # print(cell_paths)
 
-
-excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM.xlsx"
-metaSheet = pd.read_excel(excel, sheet_name='Layer 5- cells', header=2, nrows=12)
-print(metaSheet['12/11/2013'])
+# excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM.xlsx"
+# metaSheet = pd.read_excel(excel, sheet_name='Layer 5- cells', header=2, nrows=12)
+# print(metaSheet['12/11/2013'])
 # dates = {}
 # for col in metaSheet.columns:
 #     colList = metaSheet[col].tolist()

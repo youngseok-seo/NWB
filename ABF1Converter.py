@@ -4,6 +4,7 @@ import os
 import glob
 import json
 from datetime import datetime
+from dateutil.tz import tzlocal
 from pynwb import NWBHDF5IO, NWBFile
 from pynwb.icephys import CurrentClampStimulusSeries, VoltageClampStimulusSeries, CurrentClampSeries, VoltageClampSeries
 
@@ -15,6 +16,15 @@ class ABF1Converter:
     multi-clamp commander) to a collective NeurodataWithoutBorders v2 file.
 
     Modeled after ABFConverter created by the Allen Institute.
+
+    Parameters
+    ----------
+    inputPath: path to ABF file or a folder of ABF files to be converted
+    outputFilePath: path to the output NWB file
+    clampMode: 0 if voltage clamp 
+               1 if current clamp
+    gain: user-input value
+
     """
 
     def __init__(self, inputPath, outputFilePath, clampMode=None, gain=None):
@@ -65,10 +75,17 @@ class ABF1Converter:
         self.outputPath = outputFilePath
 
         # Take metadata input, and return hard coded values for None
+
+        V_CLAMP_MODE = 0
+        I_CLAMP_MODE = 1
+
         if clampMode:
-            self.clampMode = clampMode
-        else:
-            self.clampMode = 1  # Current Clamp Mode
+            if clampMode == 0:
+                self.clampMode = V_CLAMP_MODE
+            else:
+                self.clampMode = I_CLAMP_MODE
+        else: 
+            self.clampMode = I_CLAMP_MODE
 
         if gain:
             self.gain = gain
@@ -107,7 +124,7 @@ class ABF1Converter:
             session_description="",
             session_start_time=self.start_time,
             identifier=self.inputCellName,
-            file_create_date= datetime.today(),
+            file_create_date= datetime.now(tzlocal()),
             experimenter=None,
             notes=""
         )
