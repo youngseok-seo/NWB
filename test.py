@@ -37,6 +37,7 @@ import pandas as pd
 
     # print(cell_paths)
 
+<<<<<<< Updated upstream
 # excel = r"C:\NWB\Files\Data\Step\Demographic information Feb-05-2019-_Request_HM.xlsx"
 # metaSheet = pd.read_excel(excel, sheet_name='Layer 5- cells', header=2, nrows=12)
 # print(metaSheet['12/11/2013'])
@@ -57,6 +58,15 @@ import pandas as pd
 #     writer.writerow(['1', '2', '3', '4', '5'])
 #
 # csvFile.close()
+=======
+from pynwb import NWBHDF5IO
+from nwbwidgets import nwb2widget
+
+io = NWBHDF5IO('/Users/youngseo/Documents/Research/nwb/Files/NWBFiles/White Noise/2018-01-29-C3.nwb', mode='r')
+nwb = io.read()
+
+nwb2widget(nwb)
+>>>>>>> Stashed changes
 
 
 # base = path.basename(r"C:\NWB\Files\Human_tissue\Epilepsy cases\April 26, 2018\Cell 1\Gain 40\18426013.abf")
