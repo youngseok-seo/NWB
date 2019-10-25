@@ -7,7 +7,8 @@ from datetime import datetime
 infile = "/Users/youngseo/Documents/Research/NWB/data/abf1/19122043.abf"
 abf = pyabf.ABF(infile)
 
-print(abf.headerText)
+print(abf.abfDateTime)
+print(abf._headerV1.nExperimentType)
 
 # path = r"/Users/youngseo/Documents/Research/nwb/Files/allen_nwb2/H19_29_150_11_21_01_0001.abf"
 
