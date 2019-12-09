@@ -1,13 +1,14 @@
+#!/bin/env python
+
 import os
 import sys
 import glob
-import pandas as pd
-import csv
-from datetime import datetime
+import argparse
+
 from ABF1Converter import ABF1Converter
 
-def abf_to_nwb(inputPath, outFolder):
 
+def abf_to_nwb(inputPath, outFolder, outputMetadata, acquisitionChannelName, stimulusChannelName, overwrite):
     """
     Sample file handling script for NWB conversion.
 
@@ -15,63 +16,67 @@ def abf_to_nwb(inputPath, outFolder):
     to the folder specified by the second command line argument.
 
     NWB Files organized by cell, with assumption that each abf file corresponds to each cell
-
     """
 
     if not os.path.exists(inputPath):
         raise ValueError(f"The file or folder {inputPath} does not exist.")
 
-    if not os.path.isdir(inputPath) and not os.path.isfile(inputPath):
-
-        raise ValueError("Invalid path: input must be a path to a file or a directory")
-
     if not os.path.exists(outFolder):
         raise ValueError(f"The file or folder {outFolder} does not exist.")
 
-    # The input path is a file
-
     if os.path.isfile(inputPath):
+        files = [inputPath]
+    elif os.path.isdir(inputPath):
+        files = glob.glob(inputPath + "/*.abf")
+    else:
+        raise ValueError(f"Invalid path {inputPath}: input must be a path to a file or a directory")
 
-        fileName = os.path.basename(inputPath)
-        root, ext = os.path.splitext(fileName)
+    if len(files) == 0:
+        raise ValueError(f"Invalid path {inputPath} does not contain any ABF files.")
+
+    for f in files:
+
+        fileName = os.path.basename(f)
+        root, _ = os.path.splitext(fileName)
 
         print(f"Converting {fileName}...")
 
         outFile = os.path.join(outFolder, root + ".nwb")
 
         if os.path.exists(outFile):
-            raise ValueError(f"The file {outFile} already exists.")
-
-        ABF1Converter(inputPath, outFile).convert()
-
-    # The input path is a folder or directory
-
-    elif os.path.isdir(inputPath):
-
-        files = glob.glob(inputPath + "/*.abf")
-
-        for file in files:
-
-            fileName = os.path.basename(file)
-            root, ext = os.path.splitext(fileName)
-
-            print(f"Converting {fileName}...")
-
-            outFile = os.path.join(outFolder, root + ".nwb")
-
-            if os.path.exists(outFile):
+            if overwrite:
+                os.unlink(outFile)
+            else:
                 raise ValueError(f"The file {outFile} already exists.")
 
-            ABF1Converter(inputPath, outFile).convert()
+        conv = ABF1Converter(inputPath, outFile, acquisitionChannelName=acquisitionChannelName, stimulusChannelName=stimulusChannelName)
+        conv.convert()
 
-    return True
+        if outputMetadata:
+            conv._outputMetadata()
 
 
 def main():
 
-    inputPath = sys.argv[1]
-    outputPath = sys.argv[2]
-    abf_to_nwb(inputPath, outputPath)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--acquisitionChannelName", default=None,
+                        help="Output only the given acquisition channel.")
+    parser.add_argument("--stimulusChannelName", default=None,
+                        help="Output only the given stimulus channel.")
+    parser.add_argument("--outputPath", default=".",
+                        help="Output path for the nwb files.")
+    parser.add_argument("--outputMetadata", action="store_true", default=False,
+                        help="Helper for debugging which outputs HTML files with the metadata contents of the files.")
+    parser.add_argument("--overwrite", action="store_true", default=False,
+                        help="Overwrite output files.")
+    parser.add_argument("fileOrFolder", help="ABF file/folder  to convert.")
+
+    args = parser.parse_args()
+
+    abf_to_nwb(args.fileOrFolder, args.outputPath, outputMetadata=args.outputMetadata,
+               acquisitionChannelName=args.acquisitionChannelName,
+               stimulusChannelName=args.stimulusChannelName, overwrite=args.overwrite)
 
 
-main()
+if __name__ == "__main__":
+    main()
