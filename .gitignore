@@ -1,0 +1,19 @@
+.DS_Store
+.idea/
+.ipynb_checkpoints/
+.vscode/
+19122017.nwb
+19o10006.abf
+AllenSDK/
+Files/
+IPFX basic feature extraction.ipynb
+__pycache__/
+data/abf1/.DS_Store
+data/abf1/13n21007.abf
+data/abf1/19516004.abf
+data/abf1/19516004.abf.zip
+ipfx/
+nwb-jupyter-widgets/
+pyABF/
+pynwb/
+venv/
