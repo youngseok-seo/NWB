@@ -17,3 +17,4 @@ nwb-jupyter-widgets/
 pyABF/
 pynwb/
 venv/
+data/.DS_Store
