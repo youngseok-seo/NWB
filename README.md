@@ -7,7 +7,7 @@
 Convert a step stimulus file to NWB by downloading the sample ABF file and executing the following command. 
 
 ```
-python3 abf_to_nwb.py "path/to/inputFolder" "path/to/outputFolder"
+python3 abf_to_nwb.py data/abf1 --overwrite --acquisitionChannelName Iclamp --stimulusChannelName Current_in
 ```
 
 The ABF v1 file and the output NWB v2 file can be found in `data/abf1`. 
