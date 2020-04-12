@@ -4,10 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-infile = "/Users/youngseo/Documents/Research/NWB/Files/allen_nwb2/H19_29_150_11_21_01_0001.abf"
-abf = pyabf.ABF(infile)
+f = "/Users/youngseo/Documents/Research/NWB/Files/abf2_test/18823042.abf"
+abf = pyabf.ABF(f)
 
-print(abf.headerText)
+print(abf.adcNames)
 # print(abf.abfDateTime)
 # print(abf._headerV1.nExperimentType)
 

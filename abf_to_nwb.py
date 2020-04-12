@@ -34,9 +34,9 @@ def abf_to_nwb(inputPath, outFolder, outputMetadata, acquisitionChannelName, sti
     if len(files) == 0:
         raise ValueError(f"Invalid path {inputPath} does not contain any ABF files.")
 
-    for f in files:
+    for inputFile in files:
 
-        fileName = os.path.basename(f)
+        fileName = os.path.basename(inputFile)
         root, _ = os.path.splitext(fileName)
 
         print(f"Converting {fileName}...")
@@ -49,7 +49,7 @@ def abf_to_nwb(inputPath, outFolder, outputMetadata, acquisitionChannelName, sti
             else:
                 raise ValueError(f"The file {outFile} already exists.")
 
-        conv = ABF1Converter(inputPath, outFile, acquisitionChannelName=acquisitionChannelName, stimulusChannelName=stimulusChannelName)
+        conv = ABF1Converter(inputFile, outFile, acquisitionChannelName=acquisitionChannelName, stimulusChannelName=stimulusChannelName)
         conv.convert()
 
         if outputMetadata:

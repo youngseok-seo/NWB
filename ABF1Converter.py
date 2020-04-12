@@ -41,6 +41,7 @@ class ABF1Converter:
         self.debug=False
 
         if os.path.isfile(self.inputPath):
+            print(inputPath)
 
             abf = pyabf.ABF(self.inputPath)
             if abf.abfVersion["major"] != 1:
@@ -181,7 +182,7 @@ class ABF1Converter:
             isStimulus = True
 
             if self.stimulusChannelName is None:
-                channelList = abfFile.dacNames
+                channelList = abfFile.adcNames
                 channelIndices = range(len(channelList))
             else:
                 if self.stimulusChannelName in abfFile.dacNames:
@@ -247,6 +248,7 @@ class ABF1Converter:
                                              conversion=conversion,
                                              starting_time=starting_time,
                                              rate=rate,
+                                             unit=unit,
                                              description=description
                                              )
 
@@ -314,6 +316,7 @@ class ABF1Converter:
                                                          conversion=conversion,
                                                          starting_time=starting_time,
                                                          rate=rate,
+                                                         unit=unit,
                                                          description=description,
                                                          bias_current=np.nan,
                                                          bridge_balance=np.nan,
@@ -330,6 +333,7 @@ class ABF1Converter:
                                                          conversion=conversion,
                                                          starting_time=starting_time,
                                                          rate=rate,
+                                                         unit=unit,
                                                          description=description,
                                                          capacitance_fast=np.nan,
                                                          capacitance_slow=np.nan,

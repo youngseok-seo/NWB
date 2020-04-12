@@ -59,8 +59,9 @@ import pandas as pd
 # csvFile.close()
 from pynwb import NWBHDF5IO
 from nwbwidgets import nwb2widget
+import hdmf
 
-io = NWBHDF5IO('/Users/youngseo/Documents/Research/nwb/Files/NWBFiles/White Noise/2018-01-29-C3.nwb', mode='r')
+io = NWBHDF5IO('/Users/youngseo/Documents/Research/NWB/v2/Files/csaba/CC_2.nwb', mode='r')
 nwb = io.read()
 
 nwb2widget(nwb)
